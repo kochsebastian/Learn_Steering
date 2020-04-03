@@ -1,4 +1,5 @@
 from ray import Vector
+from pyprocessing import *
 
 class Boundary:
     def __init__(self,x1,y1,x2,y2):
@@ -10,6 +11,6 @@ class Boundary:
                         (self.a.y + self.b.y) * 0.5)
     
     def show(self):
-        pass
-
+        stroke(255)
+        line(self.a.x, self.a.y, self.b.x, self.b.y)
     

@@ -1,4 +1,8 @@
 import math
+from pyprocessing import *
+# import env
+
+
 
 class Ray :
     def __init__(self,pos, angle):
@@ -14,8 +18,12 @@ class Ray :
     def rotate(self,offset):
         self.dir = Vector().from_angle(self.angle + offset)
 
-    def show(self)
-        pass
+    def show(self,particle,SIGHT):
+        stroke(0, 255, 0, 100)
+        # pushMatrix()
+        # translate(self.pos.x, self.pos.y)
+        line(particle.pos.x, particle.pos.y, particle.pos.x + self.dir.x * SIGHT, particle.pos.y+self.dir.y * SIGHT)
+        # pushMatrix()
 
     def cast(self,wall):
         x1 = wall.a.x
@@ -40,7 +48,7 @@ class Ray :
             pt.x = x1 + t * (x2 - x1)
             pt.y = y1 + t * (y2 - y1)
             return pt
-        else
+        else:
             return
 
 
@@ -49,16 +57,59 @@ class Vector:
         self.x = x
         self.y = y
 
+    
     def __add__(self, other):
         return Vector(self.x + other.x,self.y + other.y)
-    def __minus__(self, other):
-        return Vector(self.x + other.x,self.y - other.y)
+    def __sub__(self, other):
+        return Vector(self.x - other.x,self.y - other.y)
+
+    def __mul__(self,other):
+        if isinstance(other,type(Vector())):
+            return Vector(self.x*other.x,self.y*other.y) # assume dot product
+        else:
+            return Vector(self.x *other, self.y * other)
+        return Vector(self.x)
+
+    def __truediv__(self,other):
+        if isinstance(other,Vector()):
+            return Vector(self.x/other.x,self.y/other.y) # assume dot product
+        else:
+            return Vector(self.x /other, self.y / other)
+        return Vector(self.x)
 
     def from_angle(self,a):
-        self.x = math.cos(x)
-        self.y = math.sin(y)
+        self.x = math.cos(a)
+        self.y = math.sin(a)
+        return Vector(self.x,self.y)
     
     def normelize(self):
         mag = math.sqrt(self.x**2+self.y**2)
-        return Vector(x/mag,y/mag) 
+        if mag == 0:
+            return Vector(0,0)
+        else:
+            return Vector(self.x/mag,self.y/mag) 
+    
+    def limit(self,limit):
+        mag = math.sqrt(self.x**2+self.y**2)
+        if mag == 0:
+            return Vector(0,0)
+
+        else:
+            scale = limit/mag
+            return Vector(self.x*scale,self.y*scale)
+
+    def heading(self): # TODO angle range
+        normelized = self.normelize()
+        return math.atan2(self.y,self.x)
+
+
+    def dist(self, other):
+        return math.sqrt( (self.x - other.x)**2
+                        + (self.y - other.y)**2
+                        )
+    
+    def set_mag(self,mag):
+        return self.normelize() * mag
+
+
 

@@ -3,9 +3,12 @@ import tensorflow as tf
 import numpy as np
 import random
 
+
+
 class NeuralNetwork:
     def __init__(self, a,b,c,d=0):
-        if (isinstance(a,tf.keras.Sequential)):
+        tf.keras.backend.set_learning_phase(0)
+        if (isinstance(a,type(tf.keras.Sequential()))):
             self.model = a
             self.input_nodes = b
             self.hidden_nodes = c
@@ -33,20 +36,22 @@ class NeuralNetwork:
             tensor = weights[i]
             shape = weights[i].shape
             values = tensor.flatten()
+            # values = tensor.slice()
             for j in range(len(values)):
                 if random.random() < rate:
                     w = values[j]
-                    values[j] = w + random.random()
+                    values[j] = w + random.gauss(0,1)
             new_tensor = values.reshape(shape)
             mutated_weights.append(new_tensor)
         self.model.set_weights(mutated_weights)
 
-    def dispose():
-        self.model.dispose()
+    def dispose(self):
+        pass
+        # self.model.dispose()
 
-    def predict(inputs):
+    def predict(self,inputs):
         x = np.expand_dims(inputs,axis=0)
-        y = self.model.predict(x)
+        y = self.model.predict(x).squeeze()
         return y
 
     def createModel(self):
@@ -55,10 +60,10 @@ class NeuralNetwork:
         model.add(tf.keras.layers.Dense(self.hidden_nodes,
                                     input_dim=self.input_nodes,
                                     activation=tf.keras.layers.Activation('sigmoid')))
-        model.add(tf.keras.layers.Dense(self.output_nodes,  activation=tf.keras.layers.Activation('sigmoid')))
+        # model.add(tf.keras.layers.Dense(self.output_nodes,  activation=tf.keras.layers.Activation('sigmoid')))
         model.add(tf.keras.layers.Dense(self.output_nodes,  activation=tf.keras.layers.Activation('sigmoid')))
 
-        model.compile(tf.keras.optimizers.Adam(),loss=tf.keras.losses.MeanSquaredError())
+        # model.compile(tf.keras.optimizers.Adam(),loss=tf.keras.losses.MeanSquaredError())
         # print(model.get_weights())
         return model
         
