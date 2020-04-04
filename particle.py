@@ -60,6 +60,8 @@ class Particle:
     def update(self,LIFESPAN):
         if not self.dead and not self.finished:
             self.pos += self.vel
+            for ray in self.rays:
+                ray.pos = self.pos
             self.vel += self.acc
             self.vel.limit(self.maxspeed)
             self.acc.x=0
@@ -77,9 +79,11 @@ class Particle:
             self.goal = checkpoints[self.index]
             d = p1distance(self.goal.a, self.goal.b, self.pos.x,self.pos.y)
             if d < 5:
-                self.index = (self.index + 1) % len(checkpoints)
+                self.index = self.index+1#(self.index + 1) % len(checkpoints)
+                if self.index >= len(checkpoints):
+                    self.finished = True
                 self.fitness+=1
-                self.counter = 1
+                self.counter = 0
 
     def calculate_fitness(self):
         self.fitness = math.pow(2,self.fitness)

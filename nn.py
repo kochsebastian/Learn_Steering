@@ -50,6 +50,7 @@ class NeuralNetwork:
         # self.model.dispose()
 
     def predict(self,inputs):
+        # print(inputs)
         x = np.expand_dims(inputs,axis=0)
         y = self.model.predict(x).squeeze()
         return y

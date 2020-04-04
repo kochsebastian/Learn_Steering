@@ -11,7 +11,7 @@ from ray import Vector
 
 
 
-TOTAL = 25
+TOTAL = 10
 generation_count = 0
 
 walls = []
@@ -31,7 +31,7 @@ checkpoints = []
 
 SIGHT = 50
 LIFESPAN = 25
-MUTATIO_RATE = 0.1
+MUTATION_RATE = 0.1
 
 
 """
@@ -45,7 +45,7 @@ MUTATIO_RATE = 0.1
 
 max_fitness = 500
 change_map = False
-
+frame = 0
 
 
 def buildTrack():
@@ -60,9 +60,9 @@ def buildTrack():
     outside = []
     checkpoints = [] 
 
-    noise_max = 1.0
+    noise_max = 2.0
     total = 60
-    pathWidth = 60
+    pathWidth = 30
     startX = random.uniform(0,1000)
     startY = random.uniform(0,1000)
     for i in range(total):
@@ -97,7 +97,8 @@ def setup():
     global start
     global end
     global TOTAL
-    size(1200,800)
+    
+    size(600,400)
     buildTrack()
 
     for i in range(TOTAL):
@@ -115,6 +116,8 @@ def draw():
     global saved_particles
     global start
     global end
+    global frame
+    frame+=1
 
 
     # print('draw')
@@ -147,12 +150,12 @@ def draw():
             for i in range(len(population)-1,-1,-1):
                 saved_particles.append(population.pop(i)) #TODO
 
-            # buildTrack()
+            buildTrack()
             population,saved_particles = nextGeneration(saved_particles,population,start,end,TOTAL)
             generation_count+=1
     
         if len(population) == 0:
-            # buildTrack()
+            buildTrack()
             population,saved_particles = nextGeneration(saved_particles,population,start,end,TOTAL)
             generation_count+=1
     
@@ -170,6 +173,8 @@ def draw():
     fill(255)
     textSize(24)
     noStroke()
+    frame_name = str(frame)+".png"
+    # save(frame_name)
     print(f"generation  {generation_count}")
     
 run()
