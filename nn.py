@@ -3,7 +3,7 @@ import tensorflow as tf
 import numpy as np
 import random
 
-
+import time
 
 class NeuralNetwork:
     def __init__(self, a,b,c,d=0):
@@ -38,9 +38,9 @@ class NeuralNetwork:
             values = tensor.flatten()
             # values = tensor.slice()
             for j in range(len(values)):
-                if random.random() < rate:
+                if random.random() < rate*0.5:
                     w = values[j]
-                    values[j] = w + random.gauss(0,1)
+                    values[j] = w + random.gauss(0,1)*0.8
             new_tensor = values.reshape(shape)
             mutated_weights.append(new_tensor)
         self.model.set_weights(mutated_weights)
@@ -52,7 +52,9 @@ class NeuralNetwork:
     def predict(self,inputs):
         # print(inputs)
         x = np.expand_dims(inputs,axis=0)
+        # start = time.time()
         y = self.model.predict(x).squeeze()
+        # print(time.time()-start)
         return y
 
     def createModel(self):

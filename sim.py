@@ -8,7 +8,7 @@ import tensorflow as tf
 from particle import Particle
 from genetic_algorithm import *
 from ray import Vector
-
+import time
 
 
 TOTAL = 10
@@ -29,7 +29,7 @@ inside = []
 outside = []
 checkpoints = []
 
-SIGHT = 50
+SIGHT = 100
 LIFESPAN = 25
 MUTATION_RATE = 0.1
 
@@ -43,12 +43,12 @@ MUTATION_RATE = 0.1
  and generalize to variety of maps
 """
 
-max_fitness = 500
+max_fitness = 200
 change_map = False
 frame = 0
 
 
-def buildTrack():
+def buildTrack(n_checkpoints):
     global checkpoints
     global inside
     global outside
@@ -60,9 +60,9 @@ def buildTrack():
     outside = []
     checkpoints = [] 
 
-    noise_max = 2.0
-    total = 60
-    pathWidth = 30
+    noise_max = 2
+    total = n_checkpoints
+    pathWidth = 25
     startX = random.uniform(0,1000)
     startY = random.uniform(0,1000)
     for i in range(total):
@@ -71,7 +71,7 @@ def buildTrack():
         yoff = interp(math.sin(a),[-1,1],[0,noise_max]) + startY
         xr = interp(pnoise2(xoff,yoff),[0,1],[100, width*0.5])
         yr = interp(pnoise2(xoff,yoff),[0,1],[100, height*0.5])
-        x1 = width / 2 + (xr - pathWidth) * math.cos(a)
+        x1 = width / 2 + (xr - pathWidth) * math.cos(a) 
         y1 = height / 2 + (yr - pathWidth) * math.sin(a)
         x2 = width / 2 + (xr + pathWidth) * math.cos(a)
         y2 = height / 2 + (yr + pathWidth) * math.sin(a)
@@ -88,22 +88,30 @@ def buildTrack():
         b2 = outside[(i+1) % len(checkpoints)]
         walls.append(Boundary(a2.x,a2.y,b2.x,b2.y))
 
-
+    checkpoints.reverse()
+    inside.reverse()
+    outside.reverse()
     start = checkpoints[0].midpoint()
     end = checkpoints[len(checkpoints)-1].midpoint()
 
+lap=0
+alivetime = 0
 def setup():
     global population
     global start
     global end
     global TOTAL
+    global lap
     
-    size(600,400)
-    buildTrack()
+    size(600,600)
+    n_checkpoints = 100
+    buildTrack(n_checkpoints)
 
     for i in range(TOTAL):
-        population.append(Particle(start=start))
-
+        population.append(Particle(start=start,max_fitness=n_checkpoints))
+    frameRate(25)
+    lap = time.time()
+    textSize(12)
     # speedSlider = createSlider
 
 def draw():
@@ -117,26 +125,44 @@ def draw():
     global start
     global end
     global frame
+    global lap
+
+    global alivetime
     frame+=1
 
 
-    # print('draw')
     cycles  = 1
-    # cycles = speedSlider.value()
+    
     background(0)
+    now = time.time() - lap
 
+
+   
+    fill(0)   
+    noStroke()
+    
+    fill(255)  
     bestP = population[0]
+    text ("Laptime: " + "{:.2f}".format(now) , width-150, 30)
+    text ("Generation: " + str(generation_count) , width-150, 50)
+    text ("Alive: " + str(len(population)) , width-150, 70)
+    text ("time: " + "{:.2f}".format(alivetime) , width-150, 110)
+    # print(f"alive: {len(population)}, drawtime: {draw_time}")
+    
+    # text ("Best: " + str(len(population)) , width-150, 50)
+    
     for n in range(cycles):
         for particle in population:
+          
             particle.look(walls)
             particle.check(checkpoints)
             particle.bounds()
             particle.update(LIFESPAN)
-            # particle.show()
-
+            particle.show()
+            
             if particle.fitness > bestP.fitness:
                 bestP = particle
-        print(f"fitness: {bestP.fitness}")
+  
     
         for i in range(len(population)-1,-1,-1):
             particle = population[i]
@@ -148,33 +174,39 @@ def draw():
 
         if len(population) != 0 and change_map:
             for i in range(len(population)-1,-1,-1):
-                saved_particles.append(population.pop(i)) #TODO
+                saved_particles.append(population.pop(i)) 
 
-            buildTrack()
+            # buildTrack(saved_particles[0].max_fitness) 
             population,saved_particles = nextGeneration(saved_particles,population,start,end,TOTAL)
             generation_count+=1
+            lap = time.time()
+            alivetime=0
     
         if len(population) == 0:
-            buildTrack()
+            # buildTrack(saved_particles[0].max_fitness) 
             population,saved_particles = nextGeneration(saved_particles,population,start,end,TOTAL)
             generation_count+=1
+            lap = time.time()
+            alivetime=0
+            
     
-    for cp in checkpoints:
-        cp.show()
+    # for cp in checkpoints:
+    #     cp.show()
     
     for wall in walls:
         wall.show()
 
-    for particle in population:
-        particle.show()
+    # for particle in population:
+    #     particle.show()
 
     bestP.highlight(SIGHT)
 
+
     fill(255)
-    textSize(24)
+
     noStroke()
+    text ("Fitness: " + str(bestP.fitness) , width-150, 90)
     frame_name = str(frame)+".png"
-    # save(frame_name)
-    print(f"generation  {generation_count}")
+
     
 run()

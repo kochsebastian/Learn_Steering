@@ -3,9 +3,10 @@ from ray import Ray
 import math
 from ray import Vector
 from numpy import interp
-
+import random
 from nn import NeuralNetwork
 from pyprocessing import * 
+import time
 # import env 
 
 
@@ -22,7 +23,7 @@ def p1distance(p1,p2,x,y):
     return num / den
 
 class Particle:
-    def __init__(self,brain=False,start=Vector(),SIGHT=50):
+    def __init__(self,brain=False,start=Vector(),SIGHT=100,max_fitness=100):
         self.fitness = 0 
         self.dead = False 
         self.finished = False 
@@ -35,6 +36,9 @@ class Particle:
         self.rays = [] 
         self.index = 0 
         self.counter = 0 
+        self.max_fitness = max_fitness
+        self.born = time.time()
+
 
         for a in range(-45,45,15):
             self.rays.append(Ray(self.pos,math.radians(a)))
@@ -82,6 +86,8 @@ class Particle:
                 self.index = self.index+1#(self.index + 1) % len(checkpoints)
                 if self.index >= len(checkpoints):
                     self.finished = True
+                    self.fitness = math.floor(max(self.max_fitness,self.max_fitness*1.5 - (time.time()-self.born)))
+                    # print(f"lap_time: {time.time()-self.born}")
                 self.fitness+=1
                 self.counter = 0
 
@@ -92,7 +98,7 @@ class Particle:
         inputs = []
         for i in range(len(self.rays)):
             ray = self.rays[i]
-            closest = None
+           
             record = self.sight
             for wall in walls:
                 pt = ray.cast(wall)
@@ -100,18 +106,21 @@ class Particle:
                     d = self.pos.dist(pt)
                     if d < record and d < self.sight:
                         record = d 
-                        closest = pt
+                      
             if record < 5:
                 self.dead = True
         
             inputs.append(interp(record, [0, 50], [1, 0]))
 
-            if closest:
-                pass
-
+           
+        # startt = time.time()
         output = self.brain.predict(inputs) 
+        # print(time.time()-startt)
         angle = interp(output[0],[0,1],[-math.pi, math.pi])
         speed = interp(output[1], [0, 1], [0, self.maxspeed])
+        # angle = interp(random.gauss(output[0],0.5),[0,1],[-math.pi, math.pi])
+        # speed = interp(random.gauss(output[1],0.5), [0, 1], [0, self.maxspeed])
+        # angle = math.pi/8 if output[0] > 0.5 else -math.pi/8
         angle += self.vel.heading()
         steering = Vector().from_angle(angle)
         steering.set_mag(speed)
@@ -141,7 +150,7 @@ class Particle:
         stroke(0, 255, 0)
         fill(0, 255, 0)
         rectMode(CENTER)
-        rect(0, 0, 20, 10)
+        rect(0, 0, 10, 5)
         popMatrix()
         for ray in self.rays:
             ray.show(self,SIGHT)
