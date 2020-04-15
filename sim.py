@@ -130,7 +130,7 @@ def draw():
     global alivetime
     frame+=1
 
-
+    alivetime +=0.04
     cycles  = 1
     
     background(0)
@@ -143,10 +143,10 @@ def draw():
     
     fill(255)  
     bestP = population[0]
-    text ("Laptime: " + "{:.2f}".format(now) , width-150, 30)
+    # text ("Laptime: " + "{:.2f}".format(now) , width-150, 30)
     text ("Generation: " + str(generation_count) , width-150, 50)
     text ("Alive: " + str(len(population)) , width-150, 70)
-    text ("time: " + "{:.2f}".format(alivetime) , width-150, 110)
+    text ("Laptime: " + "{:.2f}".format(alivetime) , width-150, 30)
     # print(f"alive: {len(population)}, drawtime: {draw_time}")
     
     # text ("Best: " + str(len(population)) , width-150, 50)
@@ -158,6 +158,7 @@ def draw():
             particle.check(checkpoints)
             particle.bounds()
             particle.update(LIFESPAN)
+            particle.alive+=0.04
             particle.show()
             
             if particle.fitness > bestP.fitness:
@@ -206,7 +207,8 @@ def draw():
 
     noStroke()
     text ("Fitness: " + str(bestP.fitness) , width-150, 90)
-    frame_name = str(frame)+".png"
+    # frame_name = "animation/singletrack_"+str(frame)+".png"
+    # save(frame_name)
 
     
 run()

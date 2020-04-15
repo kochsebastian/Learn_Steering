@@ -37,7 +37,7 @@ class Particle:
         self.index = 0 
         self.counter = 0 
         self.max_fitness = max_fitness
-        self.born = time.time()
+        self.alive = 0
 
 
         for a in range(-45,45,15):
@@ -86,7 +86,7 @@ class Particle:
                 self.index = self.index+1#(self.index + 1) % len(checkpoints)
                 if self.index >= len(checkpoints):
                     self.finished = True
-                    self.fitness = math.floor(max(self.max_fitness,self.max_fitness*1.5 - (time.time()-self.born)))
+                    self.fitness = math.floor(max(self.max_fitness,self.max_fitness*2 - (self.alive)))
                     # print(f"lap_time: {time.time()-self.born}")
                 self.fitness+=1
                 self.counter = 0
