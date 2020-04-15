@@ -177,14 +177,14 @@ def draw():
             for i in range(len(population)-1,-1,-1):
                 saved_particles.append(population.pop(i)) 
 
-            # buildTrack(saved_particles[0].max_fitness) 
+            buildTrack(saved_particles[0].max_fitness) 
             population,saved_particles = nextGeneration(saved_particles,population,start,end,TOTAL)
             generation_count+=1
             lap = time.time()
             alivetime=0
     
         if len(population) == 0:
-            # buildTrack(saved_particles[0].max_fitness) 
+            buildTrack(saved_particles[0].max_fitness) 
             population,saved_particles = nextGeneration(saved_particles,population,start,end,TOTAL)
             generation_count+=1
             lap = time.time()
